@@ -3,18 +3,26 @@ import pickle
 import argparse
 import re
 import sys
+import csv
+
 
 def read_dataBase(path,min_support,file_type):
-    
-    if(file_type == 2):
-        with open( path, 'rt') as f:
-            database = f.read()
-        data = re.split(r'[\n]',database)
-        tdb = []
-        for transactions in data:
-            transaction = re.split(' ',transactions)
-            tdb.append(transaction)
-    else:    
+    print("read data...")
+    if(file_type == "k"):
+        with open(path) as csvfile:
+            readCSV = csv.reader(csvfile, delimiter=',')
+            tdb = {}
+            for row in readCSV:
+                if(row[2]=="NONE"):
+                    continue
+                try:
+                    tdb[int(row[1])].append(row[2])
+                except:
+                    tdb[int(row[1])] = []
+                    tdb[int(row[1])].append(row[2])
+            tdb = list(tdb.values())
+
+    elif(file_type == "i"):    
         with open( path, 'rt') as f:
             database = f.read()
         data = re.split(r'[\n]',database)
@@ -31,6 +39,9 @@ def read_dataBase(path,min_support,file_type):
                 tdb[int(item[0])] = []
                 tdb[int(item[0])].append(item[1])
         tdb = list(tdb.values())
+    else:
+        print("-f(file_type) must be i(IBM-Quest-Data-Generator) or k(kaggle data)")
+        sys.exit()
     
     headerTable = gen_headerTable(tdb,min_support)
     
@@ -55,7 +66,7 @@ def gen_headerTable(tdb,min_support):
     return headerTable
 
 def find_assoc(feq_patts_order_list,min_conf):
-    
+    print("find association rules...") 
     print("frequent itemset:")
     all_set_count = 0
     for i,items in feq_patts_order_list.items():
@@ -147,8 +158,10 @@ class FPTree:
         print("return",start_node.name)
     
     def mining(self):
+        print("mining...")
         feq_patt_all = {}
-        for item in self.headerTable.values():
+        for i,item in enumerate(self.headerTable.values()):
+            #print(i, "/", len(headerTable)-1, i/(len(headerTable)-1) *100 , "%", "\r" , end=' ')
             feq_patt_list = {}
             cpbTroot = self.find_Conditional_Pattern_Base(item[1])
             self.find_feq_patt(cpbTroot, feq_patt_list, [], cpbTroot.count, False)
@@ -157,7 +170,6 @@ class FPTree:
             for itemset in list(feq_patt_list):
                 if feq_patt_list[itemset] < self.min_support:
                     del feq_patt_list[itemset]
-            
             for patt,count in list(feq_patt_list.items()):
                 
                 feq_patt = list(patt)
@@ -170,6 +182,7 @@ class FPTree:
         
         
     def find_feq_patt(self, cpBase_root, feq_patt_list, curr_patt, count, duplicated ):
+        #print(curr_patt)
         for ch_node in cpBase_root.children.values():
             self.find_feq_patt(ch_node, feq_patt_list, curr_patt, count, duplicated)
             self.find_feq_patt(ch_node, feq_patt_list, curr_patt + [ch_node.name], ch_node.count, False)
@@ -239,33 +252,35 @@ if __name__ == '__main__':
                         dest='DATA_FILE',
                         help='input database,default=data.ntrans_1')
     parser.add_argument('-ftp',
-                        default="1",
+                        default="i",
                         dest='FILE_TYPE',
-                        help='input file type,default=1(IBM-Quest-Data-Generator)')
+                        help='input file type,default=i, i=(IBM-Quest-Data-Generator) k=(kaggle data)')
     args = parser.parse_args()
 
     policy = args.POLICY
     min_support = int(args.MIN_SUPPORT)
     min_conf = float(args.MIN_CONFIDENCE)
     data_file = args.DATA_FILE
-    file_type = int(args.FILE_TYPE)
+    file_type = args.FILE_TYPE
     print("policy:",policy)
     print("min_support:",min_support)
     print("min_conf:",min_conf)
     print("data_file:",data_file,"\n")
     
+    #tdb,headerTable = read_dataBase("kaggle_data.csv",2,2)
+    
     
     if(policy == "fpg"):
         tdb,headerTable = read_dataBase(data_file,min_support,file_type)
+    
         sort_db = [sorted(t, key = lambda item:headerTable[item], reverse = True) for t in tdb ]
         
         for item in headerTable:
             headerTable[item] = [headerTable[item], None]
         #print("init_headerTable:",headerTable,'\n')    
         #print("sort_db:",sort_db,'\n')
-
-        fptree = FPTree(headerTable,min_support)
         
+        fptree = FPTree(headerTable,min_support)
         for transaction in sort_db:
             fptree.add_tran(transaction)
         #print("fptree:")
