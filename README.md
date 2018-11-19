@@ -7,7 +7,7 @@
 * **assoc_analysis.py**
 
 ```sh
-$ python3 svm.py [-h] 
+$ python3 assoc_analysis.py [-h] 
 ```
 
 | optional Options | Description |
