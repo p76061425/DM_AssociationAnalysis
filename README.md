@@ -13,7 +13,7 @@ $ python3 assoc_analysis.py [-h]
 | optional Options | Description |
 | ---              | --- |
 | -h, --help       | show this help message and exit |
-| -p POLICY       | input policy,default=fpg,fpg=(fpGroeth),apr=apriori |
+| -p POLICY       | input policy,default=fpg,fpg=(fpGrowth),apr=apriori |
 | -msp MIN_SUPPORT        | input min_support,default=3     |
 | -mcf MIN_CONFIDENCE  | input min_confidence,default=0.5         |
 | -f DATA_FILE     | input database,default=data.ntrans_1 |
