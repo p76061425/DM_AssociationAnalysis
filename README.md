@@ -17,7 +17,7 @@ $ python3 assoc_analysis.py [-h]
 | -msp MIN_SUPPORT        | input min_support,default=3     |
 | -mcf MIN_CONFIDENCE  | input min_confidence,default=0.5         |
 | -f DATA_FILE     | input database,default=data.ntrans_1 |
-| -ftp FILE_TYPE   | input file type,default=i, i=(IBM-Quest-Data-Generator) |
+| -ftp FILE_TYPE   | input file type,default=i, i=(IBM-Quest-Data-Generator),k=(kaggle data) |
 
 
 ## Result compare:
